@@ -24,11 +24,5 @@ jobs:
         working-directory: ./terraform
 
       - name: Terraform Plan
-        run: terraform plan -out=terraform.plan -no-color
+        run: terraform plan -no-color
         working-directory: ./terraform
-
-      - name: Post PR comment
-        uses: borchero/terraform-plan-comment@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          planfile: terraform.plan
