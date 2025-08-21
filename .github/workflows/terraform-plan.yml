@@ -27,16 +27,8 @@ jobs:
         run: terraform plan -out=terraform.plan -no-color
         working-directory: ./terraform
 
-      - name: Show plan (json)
-        run: terraform show -json terraform.plan > terraform.json
-        working-directory: ./terraform
-
-      - name: Show plan (text)
-        run: terraform show -no-color terraform.plan > terraform.text
-        working-directory: ./terraform
-
-      - uses: ahmadnassri/action-terraform-report@v4
+      - name: Post PR comment
+        uses: borchero/terraform-plan-comment@v2
         with:
-          terraform-text: ${{ github.workspace }}/terraform/terraform.text
-          terraform-json: ${{ github.workspace }}/terraform/terraform.json
-          remove-stale-reports: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          planfile: terraform.plan
