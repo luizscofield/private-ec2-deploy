@@ -24,7 +24,7 @@ jobs:
         working-directory: ./terraform
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan -no-color
+        run: terraform plan -out=terraform.plan -no-color
         working-directory: ./terraform
 
       - name: Show plan (json)
