@@ -24,4 +24,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: mydockerhubuser/my-app:${{ github.sha::7 }}
+          tags: mydockerhubuser/my-app:${{ github.sha.substring(0, 7) }}
