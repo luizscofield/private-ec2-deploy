@@ -8,7 +8,7 @@ on:
 jobs:
 
   terraform_apply:
-    uses: ./.github/workflows/templates/terraform-apply.yml
+    uses: ./.github/workflows/terraform-apply.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -16,14 +16,14 @@ jobs:
       terraform_version: ${{ vars.TERRAFORM_VERSION }}
 
   docker_build:
-    uses: ./.github/workflows/templates/docker-build.yml
+    uses: ./.github/workflows/docker-build.yml
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
   docker_deploy:
     needs: [terraform_apply, docker_build]
-    uses: ./.github/workflows/templates/docker-deploy.yml
+    uses: ./.github/workflows/docker-deploy.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
