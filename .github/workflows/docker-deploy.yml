@@ -9,9 +9,13 @@ on:
         required: true
       AWS_REGION:
         required: true
-      AWS_INSTANCE_ID:
-        required: true
       S3_BUCKET:
+        required: true
+      EC2_INSTANCE_NAME:
+        required: true
+      DOCKER_USERNAME:
+        required: true
+      DOCKER_PASSWORD:
         required: true
 
 jobs:
@@ -44,3 +48,25 @@ jobs:
       - name: Upload docker-compose file to S3 bucket
         run: |
           aws s3 cp docker-compose.yml s3://${{ secrets.S3_BUCKET }}/docker-compose.yml
+
+      - name: fetch instance ID
+        run: |
+          INSTANCE_ID=$(aws ssm describe-instance-information --filters "Key=tag:Name,Values=${{ secrets.EC2_INSTANCE_NAME }}" --query "InstanceInformationList[0].InstanceId" --output text)
+          echo "INSTANCE_ID=$INSTANCE_ID"
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+
+      - name: deploy from new docker-compose file
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ env.INSTANCE_ID }} \
+            --document-name "AWS-RunShellScript" \
+            --parameters '{
+              "commands": [
+                "rm -rf /app/docker-compose-old.yml",
+                "mv /app/docker-compose.yml /app/docker-compose-old.yml",
+                "aws s3api get-object --bucket ${{ secrets.S3_BUCKET }} --key docker-compose.yml /app/docker-compose.yml",
+                "echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin",
+                "docker compose -f /app/docker-compose.yml pull",
+                "docker compose -f /app/docker-compose.yml up -d --force-recreate"
+              ]
+            }'
