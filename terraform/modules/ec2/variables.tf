@@ -17,3 +17,8 @@ variable "subnet_id" {
   type        = string
   description = "The ID of the subnet to launch the instance in"
 }
+
+variable "docker_compose_bucket" {
+  type        = string
+  description = "The name of the S3 bucket containing the Docker Compose file"
+}

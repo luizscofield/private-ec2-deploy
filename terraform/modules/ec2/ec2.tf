@@ -3,7 +3,7 @@ resource "aws_instance" "ec2_instance" {
   instance_type               = var.instance_type
   subnet_id                   = var.subnet_id
   vpc_security_group_ids      = [aws_security_group.ec2_security_group.id]
-  iam_instance_profile        = aws_iam_instance_profile.ssm_instance_profile.name
+  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
 
   tags = {
     Name = var.ec2_name
@@ -19,6 +19,8 @@ systemctl start docker
 apt install snapd -y
 snap install amazon-ssm-agent --classic
 snap start amazon-ssm-agent
+mkdir -p /app
+touch /app/docker-compose.yml
 EOF
 }
 

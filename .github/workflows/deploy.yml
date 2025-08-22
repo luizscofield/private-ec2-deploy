@@ -28,5 +28,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_INSTANCE_ID: ${{ secrets.AWS_INSTANCE_ID }}
       S3_BUCKET: ${{ secrets.S3_BUCKET }}
+      EC2_INSTANCE_NAME: ${{ secrets.EC2_INSTANCE_NAME }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

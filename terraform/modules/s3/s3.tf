@@ -8,3 +8,21 @@ resource "aws_s3_bucket_versioning" "s3_bucket_versioning" {
     status = "Enabled"
   }
 }
+
+resource "aws_s3_bucket_policy" "s3_bucket_policy" {
+  bucket = aws_s3_bucket.s3_bucket.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = ["s3:GetObject", "s3:ListBucket"]
+      Effect = "Allow"
+      Principal = {
+        AWS = var.ec2_instance_role_arn
+      }
+      Resource = [
+        aws_s3_bucket.s3_bucket.arn,
+        "${aws_s3_bucket.s3_bucket.arn}/*"
+      ]
+    }]
+  })
+}
