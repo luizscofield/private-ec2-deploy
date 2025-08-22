@@ -1,0 +1,32 @@
+name: Infrastructure and Application Deployment
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+
+  terraform_apply:
+    uses: ./.github/workflows/terraform-apply.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    with:
+      terraform_version: ${{ vars.TERRAFORM_VERSION }}
+
+  docker_build:
+    uses: ./.github/workflows/docker-build.yml
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+  docker_deploy:
+    needs: [terraform_apply, docker_build]
+    uses: ./.github/workflows/docker-deploy.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_INSTANCE_ID: ${{ secrets.AWS_INSTANCE_ID }}
+      S3_BUCKET: ${{ secrets.S3_BUCKET }}
