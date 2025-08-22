@@ -1,0 +1,42 @@
+name: Deploy Docker Image to EC2 Instance
+
+on:
+  workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_REGION:
+        required: true
+      AWS_INSTANCE_ID:
+        required: true
+      S3_BUCKET:
+        required: true
+
+jobs:
+  docker-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set short SHA
+        id: vars
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Update docker-compose file
+        run: |
+          sed -i "s/{replaced-by-github-actions}/${{ env.SHORT_SHA }}/g" docker-compose.yml
+          cat docker-compose.yml
+
+      - name: Upload docker-compose file to S3 bucket
+        uses: aws-actions/amazon-s3-actions@v2
+        with:
+          bucket: ${{ secrets.S3_BUCKET }}
+          key: docker-compose.yml
+          source: docker-compose.yml
+          region: ${{ secrets.AWS_REGION }}
+          access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
