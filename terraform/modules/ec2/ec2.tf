@@ -9,7 +9,7 @@ resource "aws_instance" "ec2_instance" {
     Name = var.ec2_name
   }
 
-  # Installing Docker and the SSM agent
+  # Installing Docker, SSM agent and AWS CLI
   user_data = <<EOF
 #!/bin/bash
 apt update
@@ -19,6 +19,7 @@ systemctl start docker
 apt install snapd -y
 snap install amazon-ssm-agent --classic
 snap start amazon-ssm-agent
+snap install aws-cli --classic
 mkdir -p /app
 touch /app/docker-compose.yml
 EOF

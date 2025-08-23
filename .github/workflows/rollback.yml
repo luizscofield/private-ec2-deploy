@@ -1,0 +1,41 @@
+name: Rollback to previous docker image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  docker-deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      EC2_INSTANCE_NAME: ${{ secrets.EC2_INSTANCE_NAME }}
+      
+    steps:
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: fetch instance ID
+        run: |
+          INSTANCE_ID=$(aws ssm describe-instance-information --filters "Key=tag:Name,Values=${{ secrets.EC2_INSTANCE_NAME }}" --query "InstanceInformationList[0].InstanceId" --output text)
+          echo "INSTANCE_ID=$INSTANCE_ID"
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+
+      - name: rollback to previous docker image
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ env.INSTANCE_ID }} \
+            --document-name "AWS-RunShellScript" \
+            --parameters '{
+              "commands": [
+                "rm -rf /app/docker-compose-old.yml",
+                "mv /app/docker-compose-old.yml /app/docker-compose.yml",
+                "docker compose -f /app/docker-compose.yml up -d --force-recreate"
+              ]
+            }'
