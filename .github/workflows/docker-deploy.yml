@@ -63,7 +63,7 @@ jobs:
             --parameters '{
               "commands": [
                 "rm -rf /app/docker-compose-old.yml",
-                "mv /app/docker-compose.yml /app/docker-compose-old.yml",
+                "if [ -f "/app/docker-compose.yml" ]; then mv /app/docker-compose.yml /app/docker-compose-old.yml; fi",
                 "aws s3api get-object --bucket ${{ secrets.S3_BUCKET }} --key docker-compose.yml /app/docker-compose.yml",
                 "echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin",
                 "docker compose -f /app/docker-compose.yml pull",
