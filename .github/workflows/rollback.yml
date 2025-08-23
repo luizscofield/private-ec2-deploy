@@ -4,14 +4,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  docker-deploy:
+  docker-rollback:
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       EC2_INSTANCE_NAME: ${{ secrets.EC2_INSTANCE_NAME }}
-      
+
     steps:
 
       - name: Configure AWS credentials
@@ -34,7 +34,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --parameters '{
               "commands": [
-                "rm -rf /app/docker-compose-old.yml",
+                "rm -rf /app/docker-compose.yml",
                 "mv /app/docker-compose-old.yml /app/docker-compose.yml",
                 "docker compose -f /app/docker-compose.yml up -d --force-recreate"
               ]
